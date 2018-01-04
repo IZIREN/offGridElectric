@@ -25,19 +25,19 @@ MongoClient.connect(dbUrl, function(err, db) {
     axios.get('https://api.fixer.io/latest?base=USD')
     ]).then(axios.spread((response1, response2) => {
       var lenght = Object.keys(response1.data).length;//Response lenght
-      for (var i=0; i<3; i++){  
-      const country_code        = (response1.data[i].alpha2Code);
-      const country_name        = (response1.data[i].name);
-      const population_density  = (response1.data[i].population);
-      const currency_code       = (response1.data[i].currencies[0].code);
-      const conversion_rate_usd = (response2.data.rates[currency_code]);
-      var dbobject={countrycode:country_code,
+      for (var i=0; i<lenght; i++){  
+        var country_code        = (response1.data[i].alpha2Code);
+        var country_name        = (response1.data[i].name);
+        var population_density  = (response1.data[i].population);
+        var currency_code       = (response1.data[i].currencies[0].code);
+        var conversion_rate_usd = (response2.data.rates[currency_code]);
+        var dbobject={countrycode:country_code,
         countryname:country_name,
         populationdensity:population_density,
         currencycode:currency_code,
         conversionrate:conversion_rate_usd};
                 
-      db.collection('countrydata').updateOne(
+        db.collection('countrydata').updateOne(
         { countrycode: country_code },
         { $set: { countrycode:country_code,
           countryname:country_name,
@@ -45,18 +45,18 @@ MongoClient.connect(dbUrl, function(err, db) {
           currencycode:currency_code,
           conversionrate:conversion_rate_usd}},
           {upsert: true })
-      .then(function(result) {
+        .then(function(result) {
       
-      });            
+        });            
 
       };
-      console.log('The document was updated successfully')
-      console.log('*****Waiting for the next update in One Hour.*****');//.catch(error => {
+      console.log(lenght + ' Documents updated successfully');
+      console.log('*****Waiting for the next update in One Hour*****');
         
     })); 
-  }, 60*60*1000);//
+  }, 60*60*1000);//Set the Interval to 1 hour
 });
-//});  
+ 
   
   
 app.use('/', countriesRoutes);
